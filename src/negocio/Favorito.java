@@ -39,8 +39,23 @@ public class Favorito {
 		return this.filmes;
 	}
 	
+	
 	public int getTamanhoLista() {
 		return this.filmes.size();
+	}
+	
+	public void aluga(int idFilme) throws Exception {
+		Transacao transacao = Transacao.getInstance();
+		Locacao locacao = new Locacao();
+		Filme filme = busca(idFilme);
+		
+		if (filme == null) return;
+		locacao.alugar(cliente, filme);
+		transacao.locacoes.add(locacao);
+	}
+	
+	public void aluga(Filme filme) throws Exception {
+		this.aluga(filme.getId());
 	}
 	
 	public Filme remove(int idFilme) {
@@ -49,21 +64,5 @@ public class Favorito {
 		
 		filmes.remove(filmeAchado);
 		return filmeAchado;
-	}
-	
-	public void alugar(int idFilme) throws Exception {
-		Transacao transacao = new Transacao();
-		Locacao locacao = new Locacao();
-		Filme filme = busca(idFilme);
-		
-		double valor = locacao.filme.getValor();
-		
-		if (filme == null) return;
-		locacao.alugar(cliente, filme, valor);
-		transacao.valorLocacaoTotal();
-	}
-	
-	public void aluga(Filme filme) throws Exception {
-		this.alugar(filme.getId());
 	}
 }

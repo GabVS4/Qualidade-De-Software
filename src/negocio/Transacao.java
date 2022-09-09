@@ -1,44 +1,70 @@
 package negocio;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Map;
 
-public class Transacao {
-
-	protected  ArrayList<Locacao> alugueis;
+public final class Transacao {
+	public ArrayList<Locacao> locacoes;
+	private static Transacao instance = null;
 	
-	public Transacao() {
+	private Transacao() {
+		locacoes = new ArrayList<Locacao>();
+	}
+	
+	public static Transacao getInstance() {
+		if (instance == null) {
+			instance = new Transacao();
+		}
 		
-		alugueis= new ArrayList<Locacao>();
+		return instance;
 	}
 	
-	public double valorLocacaoTotal() {
-	    double valor=0;
-		for (Locacao locacao : alugueis) {
-			valor +=locacao.filme.valorCompra;
+	public double getValorLocacaoTotal() {
+		double total = 0;
+		
+		for (Locacao locacao : locacoes) {
+			double valorAluguelFilme = locacao.getValorAluguel();
+			total += valorAluguelFilme;
 		}
-		return valor;
+		
+		return total;
 	}
 	
-	public Cliente buscaCliente(int id) {
-		for (Locacao locacao : alugueis) {
-			if(locacao.cliente.id==id) {
-				return locacao.cliente;
-			}
-			
+	public double getLucroFilme(Filme filme) {
+		double valorArrecadacaoFilme = 0;
+		
+		for (Locacao locacao : locacoes) {
+			Filme filmeLocado = locacao.getFilme();
+			if (filme.getId() != filmeLocado.getId()) continue;
+
+			double valorLocacaoFilme = locacao.getValorAluguel();
+			filme = filmeLocado;
+			valorArrecadacaoFilme += valorLocacaoFilme;
 		}
-		return null;
+		
+		double valorCompraFilme = filme.getValor();
+		double lucro = (valorArrecadacaoFilme / valorCompraFilme) * 100;
+		return lucro;
 	}
-	public double calculoLucro(int filmeId) {
-		double valor=0;
-		Filme aux = null;
-		for (Locacao locacao : alugueis) {
-			if(locacao.filme.id==filmeId) {
-				valor += locacao.valorAluguel;
-				aux = locacao.filme;
+	
+	public Map<EnumGenero, Integer> getLocacoesPorGenero() {
+		Map<EnumGenero, Integer> mapa = new EnumMap<EnumGenero, Integer>(EnumGenero.class);
+		
+		for (Locacao locacao : locacoes) {
+			Filme filmeLocado = locacao.getFilme();
+			EnumGenero generoFilmeLocado = filmeLocado.getGenero();
+			
+			Integer aparicoes = mapa.get(generoFilmeLocado);
+			
+			if (aparicoes == null) {
+				aparicoes = 0;
 			}
 			
+			mapa.put(generoFilmeLocado, aparicoes + 1);
 		}
-		return (valor*100)/aux.valorCompra;
+		
+		return mapa;
 	}
 	
 }

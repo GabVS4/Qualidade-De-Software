@@ -7,11 +7,10 @@ public class Cliente {
 	protected Favorito Favorito;
 	protected boolean atividade = true;
 	
-	public Cliente(String nome, int id, boolean atividade) {
-		this.Favorito = new Favorito(this);
+	public Cliente(String nome, int id) {
 		this.nome= nome;
 		this.id= id;
-		this.atividade= atividade;
+		this.Favorito = new Favorito(this);
 	}
 	
 	public int getId() {

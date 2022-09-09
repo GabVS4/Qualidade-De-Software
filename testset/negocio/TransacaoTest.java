@@ -2,94 +2,89 @@ package negocio;
 
 import static org.junit.Assert.*;
 
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import negocio.Cliente;
-import negocio.Filme;
-import negocio.Genero;
-import negocio.Locacao;
-import negocio.Transacao;
-
 public class TransacaoTest {
-
 	Transacao transacao;
-	Locacao locacao1;
-	Locacao locacao2;
-	Filme filme1;
-	Filme filme2;
-
+	Filme filme;
+	Cliente cliente, cliente2;
+	Locacao locacao, locacao2; 
+	
 	@Before
 	public void setUp() throws Exception {
-		locacao1 = new Locacao();
-		locacao2 = new Locacao();
-		filme1 = new Filme("Java", Genero.ROMANCE);
-		filme1.valorCompra = 100;
+		transacao = Transacao.getInstance();
+		filme = new Filme(1, "JavaScript e Java - A Batalha Final", EnumGenero.COMEDIA, 2000.00);
 
-		filme2 = new Filme("JavaScript", Genero.ROMANCE);
-		filme2.valorCompra = 50;
-		filme2.id=20;
-
-		locacao1.alugar(new Cliente("Izaias", 2, true), filme1);
-		locacao2.alugar(new Cliente("Thiago", 3, true), filme2);
+		cliente = new Cliente("Gabriel", 1);
+		cliente2 = new Cliente("Guilherme",2);
 		
+		locacao = new Locacao();
+		locacao2 = new Locacao();		
+	
+		locacao.alugar(cliente, filme, 20.00);
+		locacao2.alugar(cliente2, filme, 20.00);
 
-		transacao = new Transacao();
+		transacao.locacoes.add(locacao);
+		transacao.locacoes.add(locacao2);
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		transacao.locacoes.clear();
 	}
 
 	@Test
-	public void valorLocacaoTotalTest() {
-
-		transacao.alugueis.add(locacao1);
-		transacao.alugueis.add(locacao2);
-		assertEquals(transacao.alugueis.get(0).cliente.nome, "Izaias");
-		assertTrue("Filme deveria ser selecionado corretamente",transacao.alugueis.get(1).filme.id==20);
-		assertEquals(150, transacao.valorLocacaoTotal(), 0.1);
+	public void testGetInstance() {
+		Transacao transacao2 = Transacao.getInstance();
+		assertEquals(transacao, transacao2);
 	}
 
 	@Test
-	public void valorLocacaoTotalTest2() {
-
-		transacao.alugueis.add(locacao1);
-		transacao.alugueis.add(locacao2);
-		transacao.alugueis.add(locacao2);
-		assertEquals(200, transacao.valorLocacaoTotal(), 0.1);
+	public void testGetValorLocacaoTotal() {
+		double valorLocacaoTotal = transacao.getValorLocacaoTotal();
+		assertEquals(40.00, valorLocacaoTotal, 0.01);
 	}
 
-	@Test 
-	public void buscaClienteIdTest() {
-		
-		transacao.alugueis.add(locacao2);
-		assertEquals("Thiago",transacao.buscaCliente(3).nome);
-	}
-	
-	@Test 
-	public void calculoLucroTest() {
-		
-		locacao2.setValorAluguel(25);
-		transacao.alugueis.add(locacao2);
-		
-		assertEquals(40,transacao.calculoLucro(20),0.01);
-	}
-	public void test1() {
-
-		assertEquals(Math.PI, 3.14, 0.01);
-		assertTrue("java".equalsIgnoreCase("Java"));
-		Filme f =new Filme("a", Genero.ROMANCE);
-		assertNull(f); // assertNotNull();
-		Filme f2 =new Filme("a", Genero.ROMANCE);
-
-		assertTrue(f==f2);
-		
-		assertSame(f, f2); // asserNotSame)();
-
-		assertTrue("Comparacao de objetos", f == f2);
-
+	@Test
+	public void testGetLucroFilme() {		
+		Filme filmeAuxiliar = new Filme(filme.getId(),filme.getNome(),filme.getGenero(),filme.getValor());
+		double lucroFilme = transacao.getLucroFilme(filmeAuxiliar);
+		assertEquals(2, lucroFilme, 0.01);
 	}
 
+	@Test
+	public void testGetLocacoesPorGenero() throws Exception {
+		Locacao locacao3 = new Locacao();
+		Locacao locacao4 = new Locacao();
+		
+		Filme filmeLocacao3 = new Filme("O Imperio Contra Ataca", EnumGenero.SIFI);
+		Filme filmeLocacao4 = new Filme("Como se fosse a primeira vez", EnumGenero.ROMANCE);
+
+		Cliente cliente3 = new Cliente("Thiago",3);
+		Cliente cliente4 = new Cliente("Julia",3);
+		
+		locacao3.alugar(cliente3, filmeLocacao3);
+		locacao4.alugar(cliente4, filmeLocacao4, 0);
+		
+		transacao.locacoes.add(locacao3);
+		transacao.locacoes.add(locacao4);
+		
+		Map<EnumGenero, Integer> mapa = transacao.getLocacoesPorGenero();
+		
+		Integer locacoesAcao = mapa.get(EnumGenero.SIFI);
+		Integer locacoesComedia = mapa.get(EnumGenero.COMEDIA);
+		Integer locacoesDrama = mapa.get(EnumGenero.DRAMA);
+		Integer locacoesMusical = mapa.get(EnumGenero.TERROR);
+		Integer locacoesRomance = mapa.get(EnumGenero.ROMANCE);
+		
+		assertTrue(locacoesAcao == 1);
+		assertTrue(locacoesComedia == 2);
+		assertTrue(locacoesDrama == null);
+		assertTrue(locacoesMusical == 1);
+		assertTrue(locacoesRomance == null);
+	}
 }

@@ -5,14 +5,14 @@ public class Filme {
 	protected String nome;
 	protected int id;
 	protected double valorCompra;
-	protected Genero genero;
+	protected EnumGenero genero;
 
-	public Filme(String nome, Genero genero) {
+	public Filme(String nome, EnumGenero genero) {
 		this.nome = nome;
 		this.genero = genero;
 	}
 	
-	public Filme(int id, String nome, Genero genero, double valor) {
+	public Filme(int id, String nome, EnumGenero genero, double valor) {
 		this.id = id;
 		this.nome = nome;
 		this.genero = genero;
@@ -39,11 +39,11 @@ public class Filme {
 		this.valorCompra = valor;
 	}
 
-	public Genero getGenero() {
+	public EnumGenero getGenero() {
 		return genero;
 	}
 
-	public void setGenero(Genero genero) {
+	public void setGenero(EnumGenero genero) {
 		this.genero = genero;
 	}
 
